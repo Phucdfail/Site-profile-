@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Phucdfail Community</title>
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  margin: 0;
+}
+#app {
+  padding: 10px;
+}
+input, button {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+}
+button {
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+}
+.box {
+  background: #1e293b;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+.chat-box {
+  height: 200px;
+  overflow-y: auto;
+  background: #020617;
+  padding: 5px;
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+let user = localStorage.getItem("user");
+
+function loginUI() {
+  document.getElementById("app").innerHTML = `
+    <h2>Đăng nhập</h2>
+    <input id="name" placeholder="Tên của mày">
+    <button onclick="login()">Vào</button>
+  `;
+}
+
+function login() {
+  let name = document.getElementById("name").value;
+  if (!name) return alert("Nhập tên đi cha nội");
+  localStorage.setItem("user", name);
+  user = name;
+  mainUI();
+}
+
+function mainUI() {
+  document.getElementById("app").innerHTML = `
+    <h3>Xin chào ${user}</h3>
+
+    <div class="box">
+      <h4>Chat cộng đồng</h4>
+      <div class="chat-box" id="chat"></div>
+      <input id="msg" placeholder="Nhắn gì đó...">
+      <button onclick="sendMsg()">Gửi</button>
+    </div>
+
+    <div class="box">
+      <h4>Nối từ</h4>
+      <div id="wordGame">Từ hiện tại: <b id="currentWord">bắt đầu</b></div>
+      <input id="wordInput">
+      <button onclick="playWord()">Chơi</button>
+    </div>
+
+    <div class="box">
+      <h4>Đoán số (0-1000)</h4>
+      <input id="guess">
+      <button onclick="guessNumber()">Đoán</button>
+      <div id="result"></div>
+    </div>
+  `;
+}
+
+let chatData = JSON.parse(localStorage.getItem("chat") || "[]");
+
+function sendMsg() {
+  let msg = document.getElementById("msg").value;
+  if (!msg) return;
+  chatData.push(user + ": " + msg);
+  localStorage.setItem("chat", JSON.stringify(chatData));
+  renderChat();
+}
+
+function renderChat() {
+  let box = document.getElementById("chat");
+  box.innerHTML = chatData.map(m => "<div>" + m + "</div>").join("");
+}
+
+let currentWord = "bắt đầu";
+
+function playWord() {
+  let input = document.getElementById("wordInput").value;
+  if (input[0] !== currentWord[currentWord.length - 1]) {
+    alert("Sai luật rồi bro");
+    return;
+  }
+  currentWord = input;
+  document.getElementById("currentWord").innerText = currentWord;
+}
+
+let secret = Math.floor(Math.random() * 1001);
+
+function guessNumber() {
+  let guess = Number(document.getElementById("guess").value);
+  let result = document.getElementById("result");
+
+  if (guess > secret) result.innerText = "Nhỏ hơn";
+  else if (guess < secret) result.innerText = "Lớn hơn";
+  else {
+    result.innerText = "Trúng rồi!";
+    secret = Math.floor(Math.random() * 1001);
+  }
+}
+
+if (!user) loginUI();
+else mainUI();
+
+setTimeout(renderChat, 500);
+</script>
+
+</body>
+</html>
